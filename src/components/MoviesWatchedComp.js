@@ -10,6 +10,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import { makeStyles } from '@material-ui/core/styles';
+import Utils from './Utils'
 
 const useStyles = makeStyles((theme) => ({
     formControl: {
@@ -31,13 +32,39 @@ function MoviesWatchedComp(props)
     const [moviesAndDates, setMoviesAndDates] = useState("")
     const [movies, setMovies] = useContext(MoviesContext);
     const [subscribePage, setSubscribePage] = useState(false)
-    const [selectedMovie, setSelectedMovie] = useState("")
+    const [selectedMovie, setSelectedMovie] = useState()
     const [filteredMovies, setFilteredMovies] = useState([])
-    const [date, setDate] = useState("")
+    const [date, setDate] = useState("2015-08-09")
 
     const clickedSubscribeToMovie = () =>
     {
+        debugger;
+        let newMovieToSubscriptions = {MovieId : selectedMovie.id, DateWatched : date}
+        let localSubscription = subscriptions
+        let subscriptionsIndex = localSubscription.findIndex(x => x.data.MemberId == props.memberId)
+        if(subscriptionsIndex >= 0 )
+        {
+            let moviesRecoredInMemberRecored = localSubscription[subscriptionsIndex].data.Movies
+            moviesRecoredInMemberRecored.push(newMovieToSubscriptions)
+            let newsubscriptionToSubscriptions = {id: localSubscription[subscriptionsIndex].id , data: {MemberId : props.memberId, Movies : moviesRecoredInMemberRecored}}
+            localSubscription[subscriptionsIndex] = newsubscriptionToSubscriptions
+            setSubscriptions(localSubscription)
+            let newsubscriptionToServer = {MemberId : props.memberId, Movies : moviesRecoredInMemberRecored}
+            Utils.updateServer('Subscriptions', localSubscription[subscriptionsIndex].id, newsubscriptionToServer)
+        }
 
+        /*
+        let MemberObjToMembers = {id : props.match.params.id , data : {Name : name, Email : email, City : city}}
+        let MemberObjToServer = {Name : name, Email : email, City : city}
+        let MembersArray = members
+        let MemberIndex = members.findIndex(x => x.id == MemberObjToMembers.id )
+        if(MemberIndex >= 0 )
+        {
+          MembersArray[MemberIndex] = MemberObjToMembers
+          setMembers(MembersArray)
+          Utils.updateServer('Members', MemberObjToMembers.id, MemberObjToServer)
+        }
+        */
     }
 
     const clickedSubscribe = () =>
@@ -47,13 +74,14 @@ function MoviesWatchedComp(props)
         setFilteredMovies(filteredMoviesTemp)
     }
 
-    const handleChange = (e) =>
+    const selectChanged = (e) =>
     {
         setSelectedMovie(e.target.value);
     }
 
     useEffect(() =>
     {
+        debugger;
         let moviesAndDatesArray = []
         let subscriptionsForMemberTemp = subscriptions.find(x => x.data.MemberId == props.memberId)
         if(subscriptionsForMemberTemp)
@@ -85,17 +113,17 @@ function MoviesWatchedComp(props)
                                             <Grid item>
                                                 <FormControl  className={classes.formControl}>
                                                     <InputLabel>Select a Movie</InputLabel>
-                                                    <Select onChange={handleChange}>
+                                                    <Select onChange={selectChanged}>
                                                         {
                                                             filteredMovies.map((item,index) => {
-                                                                return <MenuItem key={index} value={item.data.Title}>{item.data.Title}</MenuItem>
+                                                                return <MenuItem key={index} value={item}>{item.data.Title}</MenuItem>
                                                             })
                                                         }
                                                     </Select>
                                                 </FormControl>
                                             </Grid>
                                             <Grid item>
-                                                <input style={{width:"150px", height:"50px" }} type="date" data-date="" data-date-format="DD/MM/YYYY" value="2015-08-09" onChange={e =>setDate(e.target.value) }/>
+                                                <input style={{width:"150px", height:"50px" }} type="date" data-date="" data-date-format="DD/MM/YYYY" value={date} onChange={e =>setDate(e.target.value) }/>
                                             </Grid>
                                         </Grid>
                                         <Grid item><Button style={{textTransform: 'none'}} variant="contained" onClick={clickedSubscribeToMovie}>Subscribe</Button></Grid>
