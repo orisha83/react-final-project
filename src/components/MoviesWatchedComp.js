@@ -38,7 +38,6 @@ function MoviesWatchedComp(props)
 
     const clickedSubscribeToMovie = () =>
     {
-        debugger;
         let newMovieToSubscriptions = {MovieId : selectedMovie.id, DateWatched : date}
         let localSubscription = subscriptions
         let subscriptionsIndex = localSubscription.findIndex(x => x.data.MemberId == props.memberId)
@@ -52,19 +51,11 @@ function MoviesWatchedComp(props)
             let newsubscriptionToServer = {MemberId : props.memberId, Movies : moviesRecoredInMemberRecored}
             Utils.updateServer('Subscriptions', localSubscription[subscriptionsIndex].id, newsubscriptionToServer)
         }
+    }
 
-        /*
-        let MemberObjToMembers = {id : props.match.params.id , data : {Name : name, Email : email, City : city}}
-        let MemberObjToServer = {Name : name, Email : email, City : city}
-        let MembersArray = members
-        let MemberIndex = members.findIndex(x => x.id == MemberObjToMembers.id )
-        if(MemberIndex >= 0 )
-        {
-          MembersArray[MemberIndex] = MemberObjToMembers
-          setMembers(MembersArray)
-          Utils.updateServer('Members', MemberObjToMembers.id, MemberObjToServer)
-        }
-        */
+    const ClickedToClose = () =>
+    {
+        setSubscribePage(false)
     }
 
     const clickedSubscribe = () =>
@@ -81,7 +72,6 @@ function MoviesWatchedComp(props)
 
     useEffect(() =>
     {
-        debugger;
         let moviesAndDatesArray = []
         let subscriptionsForMemberTemp = subscriptions.find(x => x.data.MemberId == props.memberId)
         if(subscriptionsForMemberTemp)
@@ -94,7 +84,6 @@ function MoviesWatchedComp(props)
             })
             setMoviesAndDates(moviesAndDatesArray)
         }
-        
     },[])
 
        return(
@@ -106,7 +95,10 @@ function MoviesWatchedComp(props)
                     </Typography>
                 </Grid>
                 <Grid item>
-                    <Button style={{textTransform: 'none'}} variant="contained" onClick={clickedSubscribe}>Subscribe to a new movie</Button>
+                   {subscribePage 
+                    ? <Button style={{textTransform: 'none'}} variant="contained" onClick={ClickedToClose}>Close</Button>
+                    : <Button style={{textTransform: 'none'}} variant="contained" onClick={clickedSubscribe}>Subscribe to a new movie</Button>
+                    }
                 </Grid>
                 {subscribePage && <div className={classes.paper}><Grid item>Add a New Movie </Grid>
                                         <Grid item container direction="row">

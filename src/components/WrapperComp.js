@@ -1,11 +1,21 @@
 import {useEffect} from 'react'
-import MainComp from './MainComp'
-import Typography from '@material-ui/core/Typography';
+import Utils from './Utils'
 import { MoviesContextProvider } from "./MoviesContaxtApi"
 import { MembersContextProvider } from './MembersContextApi'
 import { UsersContextProvider } from './UsersContaxtApi'
 import { SubscriptionsContextProvider } from './SubscriptionsContaxtApi'
-import Utils from './Utils'
+import { LogInContextProvider } from './LogInContaxtApi'
+import Typography from '@material-ui/core/Typography';
+import SubscriptionsComp from './SubscriptionsComp'
+import MoviesComp from './MoviesComp'
+import EditMovieComp from './EditMovieComp'
+import EditMemberComp from './EditMemberComp'
+import EditUserComp from './EditUserComp'
+import UserManagmentComp from './UsersManagmentComp'
+import CreateAccountComp from './CreatAccountComp'
+import LoginComp from './LoginComp'
+import MainComp from './MainComp'
+import {Link, Switch,Route} from 'react-router-dom'
 
 function WrapperComp()
 {
@@ -46,10 +56,11 @@ function WrapperComp()
 
        return(
         <div>
-            <Typography variant="h3" gutterBottom align="center">
+             <Typography variant="h3" gutterBottom align="center">
                 Movies - Subscription Web Site
             </Typography>
-
+            
+            <LogInContextProvider>
             <SubscriptionsContextProvider>
             <UsersContextProvider>
             <MembersContextProvider>
@@ -59,6 +70,10 @@ function WrapperComp()
             </MembersContextProvider>
             </UsersContextProvider>
             </SubscriptionsContextProvider>
+            </LogInContextProvider>
+            
+            
+            
         </div>
     )
 }
