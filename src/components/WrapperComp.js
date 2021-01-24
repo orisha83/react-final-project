@@ -6,16 +6,7 @@ import { UsersContextProvider } from './UsersContaxtApi'
 import { SubscriptionsContextProvider } from './SubscriptionsContaxtApi'
 import { LogInContextProvider } from './LogInContaxtApi'
 import Typography from '@material-ui/core/Typography';
-import SubscriptionsComp from './SubscriptionsComp'
-import MoviesComp from './MoviesComp'
-import EditMovieComp from './EditMovieComp'
-import EditMemberComp from './EditMemberComp'
-import EditUserComp from './EditUserComp'
-import UserManagmentComp from './UsersManagmentComp'
-import CreateAccountComp from './CreatAccountComp'
-import LoginComp from './LoginComp'
 import MainComp from './MainComp'
-import {Link, Switch,Route} from 'react-router-dom'
 
 function WrapperComp()
 {
@@ -71,9 +62,6 @@ function WrapperComp()
             </UsersContextProvider>
             </SubscriptionsContextProvider>
             </LogInContextProvider>
-            
-            
-            
         </div>
     )
 }

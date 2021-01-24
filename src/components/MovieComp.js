@@ -1,4 +1,4 @@
-import {useContext} from 'react'
+import {useContext, useEffect, useState} from 'react'
 import Button from '@material-ui/core/Button';
 import SubscriptionWatchedComp from "./SubscriptionWatchedComp"
 import {Link} from 'react-router-dom'
@@ -10,8 +10,9 @@ import 'react-confirm-alert/src/react-confirm-alert.css' // Import css
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import {MoviesContext} from "./MoviesContaxtApi";
+import {LogInContext} from './LogInContaxtApi'
+import {UsersContext} from './UsersContaxtApi'
 import Utils from './Utils'
-import './Main.css'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -29,10 +30,15 @@ function MovieComp(props)
 {
     const classes = useStyles()
     const [movies, setMovies] = useContext(MoviesContext);
+    const [movie, setMovie] = useState()
+    const [showEdit, setShowEdit] = useState(false)
+    const [showDelete, setShowDelete] = useState(false)
+    const {logInUser} = useContext(LogInContext)
+    const [logInUserVar,setLogInUserVar] = logInUser
+    const [users, setUsers] = useContext(UsersContext);
 
     const deleteMovie = () =>
     {
-        console.log("in delete")
         let currentMoviesArray = movies
         let moviesArrayAfterDelete = currentMoviesArray.filter(x => x.id != props.movieDetails.id)
         setMovies(moviesArrayAfterDelete)
@@ -56,33 +62,70 @@ function MovieComp(props)
           })
     }
 
-    //Genres: {props.movieDetails.Genres.join(", ")}
+    const checkWhichBottonsToShow = () =>
+    {
+      let currentUser = users.find(x => x.data.UserName == logInUserVar.user)
+      if(currentUser)
+      {
+          currentUser.data.Permissions.forEach(item => {
+          if(item == "Update Movies")
+          {
+            setShowEdit(true)
+          }
+          if(item == "Delete Movies")
+          {
+            setShowDelete(true)
+          }
+        })
+      }
+    }
+
+
+    useEffect(() =>
+    {
+        
+        if(props.movieDetails)
+        {
+            setMovie(props.movieDetails)
+            setShowEdit(props.userPermissions.showEdit)
+            setShowDelete(props.userPermissions.showDelete)
+        }
+        else if(props.match.params.id)
+        {
+            let newMovie = movies.find(x => x.id == props.match.params.id)
+            if(newMovie)
+            {
+              setMovie(newMovie)
+              checkWhichBottonsToShow()
+            }
+        }
+    },[])
     
     return(
         
             <Grid container direction="column" alignItems="center">
                 <Grid item>
                     <Typography variant="h4" gutterBottom align="center">
-                    {props.movieDetails.data.Title} , {props.movieDetails.data.date}
+                    {movie && movie.data.Title} , {movie && movie.data.date}
                     </Typography>
                     <Typography variant="h6" gutterBottom align="left">
-                    Genres: {props.movieDetails.data.Genres.join(", ")}
+                    Genres: {movie && movie.data.Genres.join(", ")}
                     </Typography>
                </Grid>
                 <Grid item>    
                 </Grid>
                 <Grid  container direction="row" justify="space-around" alignItems="flex-start" >
                     <Grid item  >
-                        <img src={props.movieDetails.data.ImageUrl} width="200" height="300"/> 
+                        {movie && <img src={movie.data.ImageUrl} width="200" height="300"/> }
                     </Grid>
                     <Grid item  className={classes.paper}>
-                        <SubscriptionWatchedComp />
+                        {movie && <SubscriptionWatchedComp movieId={movie.id}/>}
                     </Grid>
                 </Grid>
                 <Grid item>
-                    <Link to={`/Movies/Edit/${props.movieDetails.id}`} style={{ textDecoration: 'none' }}>
-                        <Button style={{textTransform: 'none'}} size='large' startIcon={<EditIcon />} variant="contained"></Button></Link>
-                    <Button style={{textTransform: 'none'}} size='large' variant="contained" startIcon={<DeleteIcon />} onClick={clickedDelete}></Button>
+                   {movie &&  showEdit && <Link to={`/Movies/Edit/${movie.id}`} style={{ textDecoration: 'none' }}>
+                        <Button style={{textTransform: 'none'}} size='large' startIcon={<EditIcon />} variant="contained"></Button></Link>}
+                   {showDelete && <Button style={{textTransform: 'none'}} size='large' variant="contained" startIcon={<DeleteIcon />} onClick={clickedDelete}></Button>}
                 </Grid>
             </Grid>
         

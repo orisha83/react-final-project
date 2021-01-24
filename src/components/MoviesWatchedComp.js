@@ -1,6 +1,6 @@
-import {useState, useEffect, useContext} from 'react'
+import {useState, useEffect, useContext, useRef} from 'react'
 import Button from '@material-ui/core/Button';
-import Link from '@material-ui/core/Link';
+import {Link} from 'react-router-dom'
 import Typography from '@material-ui/core/Typography';
 import Grid from '@material-ui/core/Grid';
 import {MoviesContext} from "./MoviesContaxtApi";
@@ -35,9 +35,13 @@ function MoviesWatchedComp(props)
     const [selectedMovie, setSelectedMovie] = useState()
     const [filteredMovies, setFilteredMovies] = useState([])
     const [date, setDate] = useState("2015-08-09")
+    const [newId, setNewId] = useState("")
+    const [pressed, setPressed] = useState(false)
 
-    const clickedSubscribeToMovie = () =>
+
+    const clickedSubscribeToMovie = async () =>
     {
+        let newsubscriptionToSubscriptions = {}
         let newMovieToSubscriptions = {MovieId : selectedMovie.id, DateWatched : date}
         let localSubscription = subscriptions
         let subscriptionsIndex = localSubscription.findIndex(x => x.data.MemberId == props.memberId)
@@ -45,13 +49,35 @@ function MoviesWatchedComp(props)
         {
             let moviesRecoredInMemberRecored = localSubscription[subscriptionsIndex].data.Movies
             moviesRecoredInMemberRecored.push(newMovieToSubscriptions)
-            let newsubscriptionToSubscriptions = {id: localSubscription[subscriptionsIndex].id , data: {MemberId : props.memberId, Movies : moviesRecoredInMemberRecored}}
+            newsubscriptionToSubscriptions = {id: localSubscription[subscriptionsIndex].id , data: {MemberId : props.memberId, Movies : moviesRecoredInMemberRecored}}
             localSubscription[subscriptionsIndex] = newsubscriptionToSubscriptions
             setSubscriptions(localSubscription)
             let newsubscriptionToServer = {MemberId : props.memberId, Movies : moviesRecoredInMemberRecored}
             Utils.updateServer('Subscriptions', localSubscription[subscriptionsIndex].id, newsubscriptionToServer)
         }
+        else //new subscription
+        {
+            newsubscriptionToSubscriptions = {MemberId : props.memberId, Movies : [newMovieToSubscriptions]}
+            let res = await Utils.sendDataToServer('Subscriptions',newsubscriptionToSubscriptions)
+            setNewId(res.id)
+        }
+        setSubscribePage(false)
     }
+
+    const initialRender = useRef(true);
+    useEffect(() =>
+    {
+        if(initialRender.current){
+            initialRender.current = false;
+        }else{
+                let newMovieToSubscriptions = {MovieId : selectedMovie.id, DateWatched : date}
+                let newsubscriptionToSubscriptions = {id: newId , data: {MemberId : props.memberId, Movies : [newMovieToSubscriptions]}}
+                let localSubscription = subscriptions
+                localSubscription.push(newsubscriptionToSubscriptions)
+                setSubscriptions(localSubscription)
+                setPressed(true)
+            }
+    },[newId])
 
     const ClickedToClose = () =>
     {
@@ -70,21 +96,32 @@ function MoviesWatchedComp(props)
         setSelectedMovie(e.target.value);
     }
 
-    useEffect(() =>
+    const createMoviesAndDatesArray = () =>
     {
         let moviesAndDatesArray = []
         let subscriptionsForMemberTemp = subscriptions.find(x => x.data.MemberId == props.memberId)
-        if(subscriptionsForMemberTemp)
+        if(subscriptionsForMemberTemp) //adds to current subscription
         {
             let moviesAndDatesWithId = subscriptionsForMemberTemp.data.Movies
             moviesAndDatesWithId.forEach(x => {
             let watchedMovies = movies.find(item => item.id == x.MovieId)
-            let MovieAndDateObj = {movieName : watchedMovies.data.Title , date : x.DateWatched}
+            let MovieAndDateObj = {movieId : watchedMovies.id, movieName : watchedMovies.data.Title , date : x.DateWatched}
             moviesAndDatesArray.push(MovieAndDateObj)
             })
             setMoviesAndDates(moviesAndDatesArray)
         }
+    }
+
+    useEffect(() =>
+    {
+        console.log(props.memberId)
+        createMoviesAndDatesArray()
     },[])
+
+    useEffect(() =>
+    {
+        createMoviesAndDatesArray()
+    },[subscribePage])
 
        return(
         <div>
@@ -125,7 +162,7 @@ function MoviesWatchedComp(props)
                 <ul>
                 {
                  moviesAndDates && moviesAndDates.map((item,index) =>{
-                    return <Grid item><li key={index}><Link href="#">{item.movieName}</Link>, {item.date}</li></Grid>
+                    return <Grid item><li key={index}><Link to={`/Movie/${item.movieId}`}>{item.movieName}</Link>, {item.date}</li></Grid>
                     })
                 }
                 </ul>

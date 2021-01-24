@@ -6,7 +6,6 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import {UsersContext} from './UsersContaxtApi'
-import './Main.css'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -23,13 +22,12 @@ const useStyles = makeStyles((theme) => ({
 function SubscriptionsComp()
 {
     const classes = useStyles()
-    //const [users, setMembers] = useState([{name : "ori shalom", userName : "shalom.ori@gmail.com", sessionTimeOut : "Hod Hasharon" , createdData : "", permissions : ""},
-      //                                      {name : "anat shalom", userName : "anat.ori@gmail.com", sessionTimeOut : "TLV Hasharon" , createdData : "", permissions : ""}])
     const [allUsersButtonColor,setAllUsersButtonColor] = useState("primary")
     const [addUserButtonColor,setAddUserButtonColor] = useState("")
     const [allUsersPage, setAllUsersPage] = useState(true)
     const [addUserPage, setAddUserPage] = useState(false)
     const [users, setUsers] = useContext(UsersContext);
+
 
     const clickedAllUsers = () => 
     {

@@ -10,7 +10,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import InputAdornment from "@material-ui/core/InputAdornment";
 import IconButton from "@material-ui/core/IconButton";
 import { MoviesContext } from "./MoviesContaxtApi";
-import './Main.css'
+import {LogInContext} from './LogInContaxtApi'
+import {UsersContext} from './UsersContaxtApi'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -35,10 +36,46 @@ function MoviesComp()
     const [allMoviesPage, setAllMoviesPage] = useState(true)
     const [addMoviesPage, setAddMoviesPage] = useState(false)
     const [filteredMovies, setFilteredMovies] = useState()
+    const {logInUser} = useContext(LogInContext)
+    const [logInUserVar,setLogInUserVar] = logInUser
+    const [users, setUsers] = useContext(UsersContext);
+    const [permissionsObj, setPermissionsObj] = useState()
+    const [showViewParam, setShowViewParam] = useState(false)
+    const [showCreateParam, setShowCreateParam] = useState(false)
+
 
     let searchChanged =  (e) =>
     {
         setSearchWord(e.target.value.toUpperCase())
+    }
+
+    const checkWhichBottonsToShow = () =>
+    {
+      let currentUser = users.find(x => x.data.UserName == logInUserVar.user)
+      if(currentUser)
+      {
+        let showEditParam = false
+        let showDeleteParam = false
+        currentUser.data.Permissions.forEach(item => {
+          if(item == "Update Movies")
+          {
+            showEditParam = true
+          }
+          if(item == "Delete Movies")
+          {
+            showDeleteParam = true
+          }
+          if(item == "View Movies")
+          {
+            setShowViewParam(true)
+          }
+          if(item == "Create Movies")
+          {
+            setShowCreateParam(true)
+          }
+        })
+        setPermissionsObj({showEdit : showEditParam, showDelete : showDeleteParam})
+      }
     }
 
     let page = () =>
@@ -55,6 +92,11 @@ function MoviesComp()
         }
         setFilteredMovies(filteredMovies)
     }
+
+    useEffect(() => 
+    {
+        checkWhichBottonsToShow()
+    },[])
 
     useEffect(() =>  {
         page()
@@ -95,7 +137,7 @@ function MoviesComp()
                         <Button style={{textTransform: 'none'}} variant="contained" color={allMoviesButtonColor} onClick={clickedAllMovies}>All Movies</Button>
                     </Grid>
                     <Grid item>
-                        <Button style={{textTransform: 'none'}} variant="contained" color={addMoviesButtonColor} onClick={clickedAddMovies}>Add Movie</Button>
+                        {showCreateParam && <Button style={{textTransform: 'none'}} variant="contained" color={addMoviesButtonColor} onClick={clickedAddMovies}>Add Movie</Button>}
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     </Grid>
                     <Grid item>
@@ -104,7 +146,8 @@ function MoviesComp()
                     </Grid>
                 </Grid>
                 <Grid item container direction="column" alignItems="center">
-                    {allMoviesPage && filteredMovies && filteredMovies.map((item,index) => {return <div><Grid item key={index} className={classes.paper}><MovieComp movieDetails={item}/></Grid><br/></div>})}
+                    {showViewParam ? "" : <div>You Don't Have "View Movies" Permissions!</div>}
+                    {allMoviesPage && showViewParam && filteredMovies && filteredMovies.map((item,index) => {return <div><Grid item key={index} className={classes.paper}><MovieComp movieDetails={item} userPermissions={permissionsObj}/></Grid><br/></div>})}
                     {addMoviesPage && <div className={classes.paper}><AddMovieComp  clickedAllMovies={clickedAllMovies}/></div>}
                 </Grid> 
            </Grid>

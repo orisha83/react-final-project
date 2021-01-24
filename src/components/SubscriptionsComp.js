@@ -6,7 +6,8 @@ import Grid from '@material-ui/core/Grid';
 import {MembersContext} from './MembersContextApi'
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
-import './Main.css'
+import {LogInContext} from './LogInContaxtApi'
+import {UsersContext} from './UsersContaxtApi'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -20,11 +21,6 @@ const useStyles = makeStyles((theme) => ({
     },
   }));
 
-  /*
-  useState([{Name : "ori shalom", Email : "shalom.ori@gmail.com", City : "Hod Hasharon"},
-                                            {Name : "Anat shalom", Email : "anatbarer@gmail.com", City : "TLV"}])
-                                            */
-
 function SubscriptionsComp()
 {
     const classes = useStyles()
@@ -33,6 +29,46 @@ function SubscriptionsComp()
     const [addMembersPage, setAddMembersPage] = useState(false)
     const [allMembersButtonColor,setAllMembersButtonColor] = useState("primary")
     const [addMembersButtonColor,setAddMembersButtonColor] = useState("")
+    const {logInUser} = useContext(LogInContext)
+    const [logInUserVar,setLogInUserVar] = logInUser
+    const [users, setUsers] = useContext(UsersContext);
+    const [permissionsObj, setPermissionsObj] = useState()
+    const [showViewParam, setShowViewParam] = useState(false)
+    const [showCreateParam, setShowCreateParam] = useState(false)
+
+    const checkWhichBottonsToShow = () =>
+    {
+      let currentUser = users.find(x => x.data.UserName == logInUserVar.user)
+      if(currentUser)
+      {
+        let showEditParam = false
+        let showDeleteParam = false
+        currentUser.data.Permissions.forEach(item => {
+          if(item == "Update Subscription")
+          {
+            showEditParam = true
+          }
+          if(item == "Delete Subscription")
+          {
+            showDeleteParam = true
+          }
+          if(item == "View Subscription")
+          {
+            setShowViewParam(true)
+          }
+          if(item == "Create Subscription")
+          {
+            setShowCreateParam(true)
+          }
+        })
+        setPermissionsObj({showEdit : showEditParam, showDelete : showDeleteParam})
+      }
+    }
+
+    useEffect(() => 
+    {
+        checkWhichBottonsToShow()
+    },[])
 
     const clickedAllMembers = () => 
     {
@@ -63,11 +99,12 @@ function SubscriptionsComp()
                         <Button style={{textTransform: 'none'}} variant="contained" color={allMembersButtonColor} onClick={clickedAllMembers}>All Members</Button> 
                     </Grid>
                     <Grid item>
-                        <Button style={{textTransform: 'none'}} variant="contained" color={addMembersButtonColor} onClick={clickedAddMembers}>Add Member</Button>
+                      {showCreateParam  && <Button style={{textTransform: 'none'}} variant="contained" color={addMembersButtonColor} onClick={clickedAddMembers}>Add Member</Button>}
                     </Grid>
                 </Grid>
                 <Grid item container direction="column" alignItems="center" >
-                    {allMembersPage && members && members.map((item,index) => {return <Grid item key={index} className={classes.paper}><MemberComp memberDetails={item}/></Grid>})}
+                     {showViewParam ? "" : <div>You Don't Have "View Subscriptions" Permissions!</div>}
+                    {allMembersPage && showViewParam && members && members.map((item,index) => {return <Grid item key={index} className={classes.paper}><MemberComp memberDetails={item} userPermissions={permissionsObj}/></Grid>})}
                     {addMembersPage && <div className={classes.paper}><AddMemberComp clickedAllMembers={clickedAllMembers}/></div>}
                 </Grid> 
             </Grid>

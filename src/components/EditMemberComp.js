@@ -9,7 +9,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
 import {MembersContext} from './MembersContextApi'
 import Utils from './Utils'
-import './Main.css'
 
 const useStyles = makeStyles((theme) => ({
     root: {

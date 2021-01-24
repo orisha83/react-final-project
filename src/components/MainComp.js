@@ -1,7 +1,6 @@
 import {useState, useEffect, useContext} from 'react'
 import Button from '@material-ui/core/Button';
-import ExitToAppIcon from '@material-ui/icons/ExitToApp';
-import {Link, Switch,Route} from 'react-router-dom'
+import {Link, Switch,Route, useHistory} from 'react-router-dom'
 import Grid from '@material-ui/core/Grid';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -16,14 +15,19 @@ import {LogInContext} from './LogInContaxtApi'
 import { SubscriptionsContext } from './SubscriptionsContaxtApi'
 import SubscriptionsComp from './SubscriptionsComp'
 import MoviesComp from './MoviesComp'
+import MovieComp from './MovieComp'
 import EditMovieComp from './EditMovieComp'
 import EditMemberComp from './EditMemberComp'
 import EditUserComp from './EditUserComp'
+import MemberComp from './MemberComp'
 import UserManagmentComp from './UsersManagmentComp'
 import CreateAccountComp from './CreatAccountComp'
 import LoginComp from './LoginComp'
 import EntryComp from './EntryComp'
-import './Main.css'
+import IconButton from '@material-ui/core/IconButton';
+import AccountCircle from '@material-ui/icons/AccountCircle';
+import MenuItem from '@material-ui/core/MenuItem';
+import Menu from '@material-ui/core/Menu';
 
 const useStyles = makeStyles((theme) => ({
     appbar: {
@@ -49,21 +53,38 @@ const useStyles = makeStyles((theme) => ({
 function MainComp()
 {
     const classes = useStyles();
-    const [isAdmin,setIsAdmin] = useState(true)
-    const [isLogedIn,setIsLogedIn] = useContext(LogInContext)
+    const history = useHistory()
+
+    const {isLogedIn, logInUsers, logInUser , isAdmin} = useContext(LogInContext)
+
+    const [isLogedInVar,setIsLogedInVar] = isLogedIn
+    const [logInUsersVar,setLogInUsersVar] = logInUsers
+    const [logInUserVar,setLogInUserVar] = logInUser
+    const [isAdminVar,setIsAdminVar] = isAdmin
+
     const [movies, setMovies] = useContext(MoviesContext)
     const [members, setMembers] = useContext(MembersContext);
     const [users, setUsers] = useContext(UsersContext);
     const [subscriptions, setSubscriptions] = useContext(SubscriptionsContext);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const open = Boolean(anchorEl);
+    
+    const logingOut = () =>
+    {
+        setLogInUserVar("")
+        setIsLogedInVar(false)
+        history.push('/LogIn')
+    }
 
     const clickedLogOut = () =>
     {
+        handleClose()
         confirmAlert({
-            title: 'Are you sure you want to Log Out?',                        // Title dialog
+            title: 'Are you sure you want to Log Out?',                
             buttons: [
                 {
                   label: 'Yes',
-                  //onClick: () => deleteMovie()
+                  onClick: () => logingOut()
                 },
                 {
                   label: 'No'
@@ -71,6 +92,14 @@ function MainComp()
               ]
           })
     }
+
+    const handleMenu = (event) => {
+        setAnchorEl(event.currentTarget);
+      };
+    
+      const handleClose = () => {
+        setAnchorEl(null);
+      };
 
     const getUsers = async () =>
     {
@@ -96,13 +125,19 @@ function MainComp()
         setSubscriptions(res)
     }
 
+    const getUsersLogin = async () =>
+    {
+        let res = await Utils.getDataFromServer("UsersLogin")
+        setLogInUsersVar(res)
+    }
+
     useEffect( async () => {
-        console.log("useEffect in main")
         getMovies()
         getMembers()
         getUsers()
         getSubscriptions()
-        console.log(isLogedIn)
+        getUsersLogin()
+        setIsLogedInVar(false)
     },[])
    
        return(
@@ -111,22 +146,33 @@ function MainComp()
           <Toolbar >
               <Grid container direction="row" justify="center" spacing={5}>
                     <Grid item>
-                       {isLogedIn 
+                       {isLogedInVar 
                         ? <Link to="/Movies" className={classes.link}><Button className={classes.button} >Movies</Button></Link>
                         : <Link to="/LogIn" className={classes.link}><Button className={classes.button} >Log In</Button></Link> 
                        }
                     </Grid>
                     <Grid item>
-                        {isLogedIn 
+                        {isLogedInVar 
                             ? <Link to="/Subscriptions" className={classes.link}><Button className={classes.button}>Subscriptions</Button></Link>
                             : <Link to="/NewAccount" className={classes.link}><Button className={classes.button}>Sign In</Button></Link>
                         }
                     </Grid>
                     <Grid item>
-                        {isAdmin && isLogedIn && <Link to="/UsersManagment" className={classes.link}><Button className={classes.button}>User Managment</Button></Link>}
+                        {isAdminVar && isLogedInVar && <Link to="/UsersManagment" className={classes.link}><Button className={classes.button}>User Managment</Button></Link>}
                     </Grid>
                     <Grid item>
-                        {isLogedIn ? <Button className={classes.button} startIcon={<ExitToAppIcon />} onClick={clickedLogOut}>Log Out</Button> : ""}
+                    {isLogedInVar && 
+                                <div>
+                                    <IconButton aria-label="account of current user" aria-controls="menu-appbar" aria-haspopup="true" onClick={handleMenu} color="inherit">
+                                        <AccountCircle />
+                                    </IconButton>
+                                    <Menu id="menu-appbar" anchorEl={anchorEl} anchorOrigin={{vertical: 'top',horizontal: 'right',}} keepMounted 
+                                                transformOrigin={{vertical: 'top',horizontal: 'right',}} open={open} onClose={handleClose}>
+                                        <MenuItem onClick={handleClose}>{logInUserVar.user}</MenuItem>
+                                        <MenuItem onClick={clickedLogOut} >Log Out</MenuItem>
+                                    </Menu>
+                                </div>
+                    }
                     </Grid>
                 </Grid>
           </Toolbar>
@@ -137,6 +183,8 @@ function MainComp()
             <Route path="/NewAccount" component={CreateAccountComp}/>
             <Route path="/Movies/Edit/:id" component={EditMovieComp}/>
             <Route path="/Movies" component={MoviesComp}/>
+            <Route path="/Movie/:id" component={MovieComp}/>
+            <Route path="/Member/:id" component={MemberComp}/>
             <Route path="/Subscriptions/Edit/:id" component={EditMemberComp}/>
             <Route path="/Subscriptions" component={SubscriptionsComp}/>
             <Route path="/UsersManagment/Edit/:id" component={EditUserComp}/>
