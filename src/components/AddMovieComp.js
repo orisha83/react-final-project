@@ -30,12 +30,9 @@ const AddMovieComp = (params) =>
     const initialRender = useRef(true);
     useEffect(() =>
     {
-        console.log("useEffect - 1")
         if(initialRender.current){
-            console.log("useEffect - 2")
             initialRender.current = false;
         }else{
-                console.log("useEffect - 3")
                 let genresArry = genres.split(" ")
                 let moviesObjtoMovies = {id : newId , data : {Title : title, date : premierd, ImageUrl : imageUrl, Genres : genresArry}}
                 let currentMoviesArray = movies

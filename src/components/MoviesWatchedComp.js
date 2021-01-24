@@ -114,7 +114,6 @@ function MoviesWatchedComp(props)
 
     useEffect(() =>
     {
-        console.log(props.memberId)
         createMoviesAndDatesArray()
     },[])
 

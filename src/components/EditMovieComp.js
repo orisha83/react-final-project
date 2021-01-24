@@ -34,7 +34,6 @@ function EditMovieComp(props)
 
     const clickedUpdate = () =>
     {
-        debugger;
         let moviesObjtoMovies = {id : props.match.params.id , data : {Title : editMovie.data.Title, date : premierd, ImageUrl : imageUrl, Genres : genres}}
         let moviesObjtoServer = {Title : editMovie.data.Title, date : premierd, ImageUrl : imageUrl, Genres : genres}
         let moviesArray = movies
@@ -59,7 +58,6 @@ function EditMovieComp(props)
       let movieIndex = movies.findIndex(x => x.id == props.match.params.id )
       if(movieIndex >= 0 )
       {
-        console.log(movies[movieIndex])
         setEditMovie(movies[movieIndex])
         setGenres(movies[movieIndex].data.Genres)
         setImageUrl(movies[movieIndex].data.ImageUrl)

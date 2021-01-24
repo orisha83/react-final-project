@@ -80,7 +80,6 @@ function MoviesComp()
 
     let page = () =>
     {
-        console.log("page")
         let filteredMovies
         if(searchWord != "")
         {

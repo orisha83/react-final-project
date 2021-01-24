@@ -34,7 +34,6 @@ function EditMemberComp(props)
 
     const clickedUpdate = () =>
     {
-        debugger;
         let MemberObjToMembers = {id : props.match.params.id , data : {Name : name, Email : email, City : city}}
         let MemberObjToServer = {Name : name, Email : email, City : city}
         let MembersArray = members
