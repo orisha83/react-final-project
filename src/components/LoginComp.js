@@ -43,7 +43,7 @@ function LoginComp()
         {
             let LogedInUser = {user: user , pass : pass}
             setLogInUserVar(LogedInUser)
-            if(user == 'orisha83')
+            if(user == 'orisha')
             {
                 setIsAdminVar(true)
             }
