@@ -105,11 +105,15 @@ function MoviesWatchedComp(props)
             let moviesAndDatesWithId = subscriptionsForMemberTemp.data.Movies
             moviesAndDatesWithId.forEach(x => {
             let watchedMovies = movies.find(item => item.id == x.MovieId)
-            let MovieAndDateObj = {movieId : watchedMovies.id, movieName : watchedMovies.data.Title , date : x.DateWatched}
-            moviesAndDatesArray.push(MovieAndDateObj)
+            if(watchedMovies)
+            {
+                let MovieAndDateObj = {movieId : watchedMovies.id, movieName : watchedMovies.data.Title , date : x.DateWatched}
+                moviesAndDatesArray.push(MovieAndDateObj)
+            }
             })
-            setMoviesAndDates(moviesAndDatesArray)
+            
         }
+        setMoviesAndDates(moviesAndDatesArray)
     }
 
     useEffect(() =>
@@ -120,7 +124,7 @@ function MoviesWatchedComp(props)
     useEffect(() =>
     {
         createMoviesAndDatesArray()
-    },[subscribePage])
+    },[subscribePage, props])
 
        return(
         <div>

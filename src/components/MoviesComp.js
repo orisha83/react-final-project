@@ -1,4 +1,4 @@
-import {useState, useEffect, useContext } from 'react'
+import {useState, useEffect, useContext,useRef } from 'react'
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import MovieComp from './MovieComp'
@@ -42,12 +42,8 @@ function MoviesComp()
     const [permissionsObj, setPermissionsObj] = useState()
     const [showViewParam, setShowViewParam] = useState(false)
     const [showCreateParam, setShowCreateParam] = useState(false)
-
-
-    let searchChanged =  (e) =>
-    {
-        setSearchWord(e.target.value.toUpperCase())
-    }
+    const [pressed, setPressed] = useState(false)
+    const [pressed2, setPressed2] = useState(false)
 
     const checkWhichBottonsToShow = () =>
     {
@@ -78,27 +74,32 @@ function MoviesComp()
       }
     }
 
-    let page = () =>
-    {
-        let filteredMovies
-        if(searchWord != "")
-        {
-            filteredMovies = movies.filter(x => x.data.Title.toUpperCase().startsWith(searchWord))
-        }
-        else
-        {
-            filteredMovies = movies
-        }
-        setFilteredMovies(filteredMovies)
-    }
-
     useEffect(() => 
     {
+      setFilteredMovies(movies)
         checkWhichBottonsToShow()
     },[])
 
+    const initialRender = useRef(true);
     useEffect(() =>  {
-        page()
+    if(initialRender.current)
+    {
+      initialRender.current = false;
+    }
+    else
+    {
+      let filteredMoviesArray
+        if(searchWord != "")
+        {
+          filteredMoviesArray = movies.filter(x => x.data.Title.toUpperCase().startsWith(searchWord))
+        }
+        else
+        {
+          filteredMoviesArray = movies
+        }
+        setFilteredMovies(filteredMoviesArray)
+      setPressed(true)
+    }
     },[searchWord, movies])
 
     const clickedAllMovies = () => 
@@ -109,7 +110,7 @@ function MoviesComp()
         setUseSearch(true)
         setAllMoviesPage(true)
         setAddMoviesPage(false)
-        page()
+        setFilteredMovies(movies)
     }
 
     const clickedAddMovies = () => 
@@ -140,7 +141,7 @@ function MoviesComp()
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     </Grid>
                     <Grid item>
-                   {useSearch ? <label><TextField placeholder="e.g., Titanic"  onChange={searchChanged} InputProps={{endAdornment: (<InputAdornment position="end"><IconButton><SearchIcon /></IconButton></InputAdornment>)}}
+                   {useSearch ? <label><TextField placeholder="e.g., Titanic" value={searchWord} onChange={e => setSearchWord(e.target.value.toUpperCase())} InputProps={{endAdornment: (<InputAdornment position="end"><IconButton><SearchIcon /></IconButton></InputAdornment>)}}
                             variant="outlined" style={{width: 205}} size="small"/><br/></label> : ""}
                     </Grid>
                 </Grid>

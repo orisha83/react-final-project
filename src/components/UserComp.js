@@ -35,7 +35,7 @@ function UserComp(props)
     {
         confirmAlert({
             title: 'Are you sure you want to delete User:',  // Title dialog
-            message: props.userDetails.data.name,               // Message dialog
+            message: props.userDetails.data.FirstName,               // Message dialog
             buttons: [
                 {
                   label: 'Yes',

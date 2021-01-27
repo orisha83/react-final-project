@@ -104,10 +104,6 @@ function AddUserComp(params)
         {
             setViewSubscription("View Subscription")
         }
-        else
-        {
-            setViewSubscription("")
-        }
     },[createSubscription, deleteSubscription, updateSubscription])
 
     useEffect(() =>
@@ -115,10 +111,6 @@ function AddUserComp(params)
         if(createMovies != "" && deleteMovies != "" && updateMovies != "")
         {
             setViewMovies("View Movies")
-        }
-        else
-        {
-            setViewMovies("")
         }
     },[createMovies, deleteMovies, updateMovies])
 

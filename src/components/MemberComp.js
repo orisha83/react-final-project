@@ -1,7 +1,7 @@
 import {useState, useEffect, useContext} from 'react'
 import Button from '@material-ui/core/Button';
 import MoviesWatchedComp from './MoviesWatchedComp'
-import {Link} from 'react-router-dom'
+import {Link, useHistory} from 'react-router-dom'
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css' // Import css
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -38,20 +38,26 @@ function MemberComp(props)
     const {logInUser} = useContext(LogInContext)
     const [logInUserVar,setLogInUserVar] = logInUser
     const [users, setUsers] = useContext(UsersContext);
+    const [isUsingProps, setIsUsingProps] = useState(true)
+    const history = useHistory()
 
    const deleteMember = () =>
     {
         let currentMembersArray = members
-        let MembersArrayAfterDelete = currentMembersArray.filter(x => x.id != props.memberDetails.id)
+        let MembersArrayAfterDelete = currentMembersArray.filter(x => x.id != member.id)
         setMembers(MembersArrayAfterDelete)
-        Utils.deleteDataFromServer("Members", props.memberDetails.id)
+        Utils.deleteDataFromServer("Members", member.id)
+        if(isUsingProps == false)
+        {
+          history.push('/Subscriptions')
+        }
     }
 
    const clickedDelete = () =>
     {
         confirmAlert({
             title: 'Are you sure you want to delete Member:',  // Title dialog
-            message: props.memberDetails.data.Name,               // Message dialog
+            message: member.data.Name,               // Message dialog
             buttons: [
                 {
                   label: 'Yes',
@@ -82,16 +88,18 @@ function MemberComp(props)
       }
     }
 
-    useEffect(() =>
+    const loadPage = () =>
     {
         if(props.memberDetails)
         {
+            setIsUsingProps(true)
             setMember(props.memberDetails)
             setShowEdit(props.userPermissions.showEdit)
             setShowDelete(props.userPermissions.showDelete)
         }
         else if(props.match.params.id)
         {
+            setIsUsingProps(false)
             let newMember = members.find(x => x.id == props.match.params.id)
             if(newMember)
             {
@@ -99,7 +107,12 @@ function MemberComp(props)
                 checkWhichBottonsToShow()
             }
         }
-    },[])
+    }
+
+    useEffect(() =>
+    {
+      loadPage()
+    },[props])
 
        return(
        

@@ -1,7 +1,7 @@
 import {useContext, useEffect, useState} from 'react'
 import Button from '@material-ui/core/Button';
 import SubscriptionWatchedComp from "./SubscriptionWatchedComp"
-import {Link} from 'react-router-dom'
+import {Link, useHistory} from 'react-router-dom'
 import Grid from '@material-ui/core/Grid';
 import DeleteIcon from '@material-ui/icons/Delete';
 import EditIcon from '@material-ui/icons/Edit';
@@ -36,20 +36,26 @@ function MovieComp(props)
     const {logInUser} = useContext(LogInContext)
     const [logInUserVar,setLogInUserVar] = logInUser
     const [users, setUsers] = useContext(UsersContext);
+    const [isUsingProps, setIsUsingProps] = useState(true)
+    const history = useHistory()
 
     const deleteMovie = () =>
     {
         let currentMoviesArray = movies
-        let moviesArrayAfterDelete = currentMoviesArray.filter(x => x.id != props.movieDetails.id)
+        let moviesArrayAfterDelete = currentMoviesArray.filter(x => x.id != movie.id)
         setMovies(moviesArrayAfterDelete)
-        Utils.deleteDataFromServer("Movies", props.movieDetails.id)
+        Utils.deleteDataFromServer("Movies", movie.id)
+        if(isUsingProps == false)
+        {
+          history.push('/Movies')
+        }
     }
 
     const clickedDelete = () =>
     {
         confirmAlert({
             title: 'Are you sure you want to delete the movie:',                        // Title dialog
-            message: props.movieDetails.data.Title,               // Message dialog
+            message: movie.data.Title,               // Message dialog
             buttons: [
                 {
                   label: 'Yes',
@@ -80,18 +86,18 @@ function MovieComp(props)
       }
     }
 
-
-    useEffect(() =>
+    const loadPage = () =>
     {
-        
-        if(props.movieDetails)
+      if(props.movieDetails)
         {
+            setIsUsingProps(true)
             setMovie(props.movieDetails)
             setShowEdit(props.userPermissions.showEdit)
             setShowDelete(props.userPermissions.showDelete)
         }
         else if(props.match.params.id)
         {
+            setIsUsingProps(false)
             let newMovie = movies.find(x => x.id == props.match.params.id)
             if(newMovie)
             {
@@ -99,7 +105,12 @@ function MovieComp(props)
               checkWhichBottonsToShow()
             }
         }
-    },[])
+    }
+
+    useEffect(() =>
+    {
+      loadPage()
+    },[props])
     
     return(
         
