@@ -38,6 +38,7 @@ function MovieComp(props)
     const [users, setUsers] = useContext(UsersContext);
     const [isUsingProps, setIsUsingProps] = useState(true)
     const history = useHistory()
+    
 
     const deleteMovie = () =>
     {
